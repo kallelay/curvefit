@@ -7,7 +7,7 @@ Imports OxyPlot
 Imports OxyPlot.PlotModel
 Imports OxyPlot.Axes
 Imports System.Globalization
-
+Imports System.ComponentModel
 
 Public Class MainForm
 
@@ -39,8 +39,8 @@ Public Class MainForm
 
         'ComboBox3.SelectedIndex = 0
 
-        GetType(Panel).InvokeMember("DoubleBuffered", _
-  BindingFlags.SetProperty Or BindingFlags.Instance Or BindingFlags.NonPublic, _
+        GetType(Panel).InvokeMember("DoubleBuffered",
+  BindingFlags.SetProperty Or BindingFlags.Instance Or BindingFlags.NonPublic,
   Nothing, Panel1, New Object() {True})
 
         vircons.Init()
@@ -110,6 +110,8 @@ last:
             p(TextBox1.Text)
         End If
         isBusy = False
+        UpdateParameterWindow()
+
     End Sub
 
     Public M As Matrix(Of Double)
@@ -139,7 +141,7 @@ last:
         'read first line (header)
         line = ios.ReadLine() ', vbTab, Space(1)), Space(2), " ")
 
-      
+
 
 
         'open in math.net
@@ -150,11 +152,11 @@ last:
         Dim number_of_alphabets = countAlphabets(line)
         If number_of_alphabets > number_of_numbers Then hasHeader = True
 
-            Dim number_of_semicols = countChar(line, ";")
-            Dim number_of_commas = countChar(line, ",")
+        Dim number_of_semicols = countChar(line, ";")
+        Dim number_of_commas = countChar(line, ",")
         Dim number_of_semisAndTabs = countStr(line, ";" & vbTab)
-            Dim number_of_Tabs = countChar(line, vbTab)
-            Dim number_of_space = countChar(line, Space(1))
+        Dim number_of_Tabs = countChar(line, vbTab)
+        Dim number_of_space = countChar(line, Space(1))
 
         If number_of_semisAndTabs > 0 Then
             sep = ";" & vbTab
@@ -320,7 +322,7 @@ last:
 
 
 read_mat:  'in case it's a mat
-        Dim dict As Dictionary(Of String, Matrix(Of Double)) = _
+        Dim dict As Dictionary(Of String, Matrix(Of Double)) =
                MathNet.Numerics.Data.Matlab.MatlabReader.ReadAll(Of Double)(str)
 
         allkeys = Nothing
@@ -392,7 +394,7 @@ filldata:
         YAXIS_TITLE = allkeys(selected_idx_y)
         MEAS_TITLE = "measurements values of " & allkeys(selected_idx_y)
         ESTIM_TITLE = "estimated values of " & allkeys(selected_idx_y)
-         TITLE = allkeys(selected_idx_y) & " in function of " & allkeys(selected_idx_x)
+        TITLE = allkeys(selected_idx_y) & " in function of " & allkeys(selected_idx_x)
 
         ' For row = 0 To M.RowCount - 1
         list_x.AddRange(M.Column(selected_idx_x))
@@ -460,33 +462,33 @@ filldata:
         'Evaluating
         Dim verr = vmeas - vmap
         Try
-            outp = "f(x) = " & chosenFunctionStr.ToString() & vbNewLine & _
-                If(chosenFunctionStr = "custom", "values : " & lastResultFoo & vbNewLine, "") & _
-                     "Min/Max Err: " & wordIt(verr.AbsoluteMinimum) & " -  " & wordIt(verr.AbsoluteMaximum) & vbNewLine & _
-                     "Avg Abs Err: " & wordIt(verr.PointwiseAbs.Average) & vbNewLine & _
-                      vbNewLine & _
-                    "Pearson: " & Statistics.Correlation.Pearson(vmeas.ToArray, vmap.ToArray) & vbNewLine & _
-                 "StdDev (err): " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.StandardDeviation(verr.ToArray)) & vbNewLine & _
-                 "RMS (err): " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.RootMeanSquare(verr.ToArray)) & vbNewLine & _
-                 "R² : " & MathNet.Numerics.GoodnessOfFit.RSquared(vmap, vmeas) & vbNewLine & _
-                 "StandardError: " & wordIt(MathNet.Numerics.GoodnessOfFit.StandardError(vmap, vmeas, 2)) & vbNewLine & vbNewLine & _
-                   "Error Harmonic Mean: " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.HarmonicMean(verr.ToArray)) & vbNewLine & _
-                   "InterquatileRangeInPlace: " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.InterquartileRangeInplace(verr.ToArray)) & vbNewLine & _
-                   "LowerQuartileInplace : " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.LowerQuartileInplace(verr.ToArray)) & vbNewLine & _
-                  vbNewLine & _
-                         "Cov.: " & MathNet.Numerics.Statistics.ArrayStatistics.Covariance(vmeas.ToArray, vmap.ToArray) & vbNewLine & _
-                     "Pearson Mx: " & Statistics.Correlation.PearsonMatrix(vmeas.ToArray, vmap.ToArray).ToString & vbNewLine & _
-            vbNewLine & _
-               "Spearman: " & Statistics.Correlation.Spearman(vmeas.ToArray, vmap.ToArray) & vbNewLine & _
+            outp = "f(x) = " & chosenFunctionStr.ToString() & vbNewLine &
+                If(chosenFunctionStr = "custom", "values : " & lastResultFoo & vbNewLine, "") &
+                     "Min/Max Err: " & wordIt(verr.AbsoluteMinimum) & " -  " & wordIt(verr.AbsoluteMaximum) & vbNewLine &
+                     "Avg Abs Err: " & wordIt(verr.PointwiseAbs.Average) & vbNewLine &
+                      vbNewLine &
+                    "Pearson: " & Statistics.Correlation.Pearson(vmeas.ToArray, vmap.ToArray) & vbNewLine &
+                 "StdDev (err): " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.StandardDeviation(verr.ToArray)) & vbNewLine &
+                 "RMS (err): " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.RootMeanSquare(verr.ToArray)) & vbNewLine &
+                 "R² : " & MathNet.Numerics.GoodnessOfFit.RSquared(vmap, vmeas) & vbNewLine &
+                 "StandardError: " & wordIt(MathNet.Numerics.GoodnessOfFit.StandardError(vmap, vmeas, 2)) & vbNewLine & vbNewLine &
+                   "Error Harmonic Mean: " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.HarmonicMean(verr.ToArray)) & vbNewLine &
+                   "InterquatileRangeInPlace: " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.InterquartileRangeInplace(verr.ToArray)) & vbNewLine &
+                   "LowerQuartileInplace : " & wordIt(MathNet.Numerics.Statistics.ArrayStatistics.LowerQuartileInplace(verr.ToArray)) & vbNewLine &
+                  vbNewLine &
+                         "Cov.: " & MathNet.Numerics.Statistics.ArrayStatistics.Covariance(vmeas.ToArray, vmap.ToArray) & vbNewLine &
+                     "Pearson Mx: " & Statistics.Correlation.PearsonMatrix(vmeas.ToArray, vmap.ToArray).ToString & vbNewLine &
+            vbNewLine &
+               "Spearman: " & Statistics.Correlation.Spearman(vmeas.ToArray, vmap.ToArray) & vbNewLine &
                      "Spearman Mx: " & Statistics.Correlation.SpearmanMatrix(vmeas.ToArray, vmap.ToArray).ToString & vbNewLine
             Dim x As New Statistics.DescriptiveStatistics(vmeas, True)
             'x.Kurtosis
 
-            outp &= "[about meas:] " & vbNewLine & "Kurtosis: " & wordIt(x.Kurtosis) & vbNewLine & _
-                "Skewness: " & wordIt(x.Skewness) & vbNewLine & _
-                "Min: " & wordIt(x.Minimum) & vbNewLine & _
-                "Max: " & wordIt(x.Maximum) & vbNewLine & _
-                "Avg: " & wordIt(x.Mean) & vbNewLine & _
+            outp &= "[about meas:] " & vbNewLine & "Kurtosis: " & wordIt(x.Kurtosis) & vbNewLine &
+                "Skewness: " & wordIt(x.Skewness) & vbNewLine &
+                "Min: " & wordIt(x.Minimum) & vbNewLine &
+                "Max: " & wordIt(x.Maximum) & vbNewLine &
+                "Avg: " & wordIt(x.Mean) & vbNewLine &
                 "stdDev: " & wordIt(x.StandardDeviation)
             '  "Error L1 norm: " & wordIt(verr.L1Norm()) & vbNewLine & _
             '             "Error L2 norm: " & wordIt(verr.L2Norm()) & vbNewLine & _
@@ -498,7 +500,11 @@ filldata:
 
 
 
-
+        Try
+            '  ViewVars.DataGridView1.Invoke(New MethodInvoker(Sub() refreshUpdatedValsInParamWindows()))
+        Catch ex As Exception
+            ' MsgBox(ex.Message)
+        End Try
 
 
 
@@ -541,6 +547,8 @@ filldata:
         '  Catch ex As Exception
 
         '  End Try
+
+        UpdateParameterWindow()
     End Sub
 
     Private Sub DataGridView1_CellContentClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs) Handles DataGridView1.CellContentClick
@@ -588,7 +596,7 @@ filldata:
 
         For col = 0 To M.ColumnCount - 1
             For row = M.RowCount - 1 To 0 Step -1
-                If M(row, col) > v_maxs(col) Or M(row, col) < v_mins(col) Or _
+                If M(row, col) > v_maxs(col) Or M(row, col) < v_mins(col) Or
                     (v_excludes(col) IsNot Nothing AndAlso v_excludes(col).Contains(M(row, col)) = True) Then
                     If M.RowCount = 1 And row = 0 Then M = Nothing : Exit Sub Else M = M.RemoveRow(row)
                 End If
@@ -881,7 +889,7 @@ filldata:
         If e.Button = Windows.Forms.MouseButtons.Right Or e.Button = Windows.Forms.MouseButtons.Middle Then
             DataGridView1.Rows(DataGridView1.SelectedRows(0).Index).Cells(1).Style.BackColor = Color.White
             DataGridView1.Rows(DataGridView1.SelectedRows(0).Index).Cells(2).Style.BackColor = Color.White
-            DataGridView1.Rows(DataGridView1.SelectedRows(0).Index).SetValues(New String() {DataGridView1.SelectedRows(0).Cells(0).Value, wordIt(initM.Column(DataGridView1.SelectedRows(0).Index).Minimum), _
+            DataGridView1.Rows(DataGridView1.SelectedRows(0).Index).SetValues(New String() {DataGridView1.SelectedRows(0).Cells(0).Value, wordIt(initM.Column(DataGridView1.SelectedRows(0).Index).Minimum),
                                                                              wordIt(initM.Column(DataGridView1.SelectedRows(0).Index).Maximum)})
 
             DataGridView1_CellEndEdit(sender, New DataGridViewCellEventArgs(DataGridView1.SelectedCells(0).ColumnIndex, DataGridView1.SelectedRows(0).Index))
@@ -982,16 +990,16 @@ filldata:
 
 
         If NumericUpDown1.Value = 2 Then
-            pythonIt( _
-                "def func(x, a, b, c, d, e) :" & vbNewLine & _
-                Space(5) & "return a*np.exp(b*x)+c*np.exp(d*x) + e", , _
-                If(MouseButtons And Windows.Forms.MouseButtons.Right, _
+            pythonIt(
+                "def func(x, a, b, c, d, e) :" & vbNewLine &
+                Space(5) & "return a*np.exp(b*x)+c*np.exp(d*x) + e", ,
+                If(MouseButtons And Windows.Forms.MouseButtons.Right,
                 "p0=[" & a & ", " & b & ", " & c & ", " & d & ", " & eoff & "]", ""))
         ElseIf NumericUpDown1.Value = 1 Then
-            pythonIt( _
-                "def func(x, a, b, e) :" & vbNewLine & _
-                Space(5) & "return a*np.exp(b*x) + e", , _
-                If(MouseButtons And Windows.Forms.MouseButtons.Right, _
+            pythonIt(
+                "def func(x, a, b, e) :" & vbNewLine &
+                Space(5) & "return a*np.exp(b*x) + e", ,
+                If(MouseButtons And Windows.Forms.MouseButtons.Right,
                 "p0=[" & a & ", " & b & ", " & eoff & "]", ""))
 
         End If
@@ -1009,11 +1017,11 @@ filldata:
         Dim xtmp = IO.File.CreateText(pythonP$)
         xtmp.Write( _
  _
-        generateScript( _
-          fromListToPython(list_x), _
-          fromListToPython(list_y), _
-         funcstr$, _
-         plot, _
+        generateScript(
+          fromListToPython(list_x),
+          fromListToPython(list_y),
+         funcstr$,
+         plot,
          weights) _
  _
      )
@@ -1106,16 +1114,16 @@ filldata:
         '                                                           Function(a, b, c, d, x) a * b * x + c * d * x)
 
         If NumericUpDown2.Value = 2 Then
-            pythonIt( _
-                "def func(x, a, b, c, d, e) :" & vbNewLine & _
-                Space(5) & "return a*np.log(b*x)+c*np.log(d*x) + e", , _
-                If(MouseButtons And Windows.Forms.MouseButtons.Right, _
+            pythonIt(
+                "def func(x, a, b, c, d, e) :" & vbNewLine &
+                Space(5) & "return a*np.log(b*x)+c*np.log(d*x) + e", ,
+                If(MouseButtons And Windows.Forms.MouseButtons.Right,
                 "p0=[" & a & ", " & b & ", " & c & ", " & d & ", " & eoff & "]", ""))
         ElseIf NumericUpDown2.Value = 1 Then
-            pythonIt( _
-                "def func(x, a, b, e) :" & vbNewLine & _
-                Space(5) & "return a*np.log(b*x) + e", , _
-                If(MouseButtons And Windows.Forms.MouseButtons.Right, _
+            pythonIt(
+                "def func(x, a, b, e) :" & vbNewLine &
+                Space(5) & "return a*np.log(b*x) + e", ,
+                If(MouseButtons And Windows.Forms.MouseButtons.Right,
                 "p0=[" & a & ", " & b & ", " & eoff & "]", ""))
 
         End If
@@ -1315,16 +1323,16 @@ filldata:
         '                                                           Function(a, b, c, d, x) a * b * x + c * d * x)
 
         If NumericUpDown4.Value = 2 Then
-            pythonIt( _
-                "def func(x, a, b, c, d, e) :" & vbNewLine & _
-                Space(5) & "return a*x**b+c*x**d + e", , _
-                If(MouseButtons And Windows.Forms.MouseButtons.Right, _
+            pythonIt(
+                "def func(x, a, b, c, d, e) :" & vbNewLine &
+                Space(5) & "return a*x**b+c*x**d + e", ,
+                If(MouseButtons And Windows.Forms.MouseButtons.Right,
                 "p0=[" & a & ", " & b & ", " & c & ", " & d & ", " & eoff & "]", ""))
         ElseIf NumericUpDown4.Value = 1 Then
-            pythonIt( _
-                "def func(x, a, b, e) :" & vbNewLine & _
-                Space(5) & "return a*x**b + e", , _
-                If(MouseButtons And Windows.Forms.MouseButtons.Right, _
+            pythonIt(
+                "def func(x, a, b, e) :" & vbNewLine &
+                Space(5) & "return a*x**b + e", ,
+                If(MouseButtons And Windows.Forms.MouseButtons.Right,
                 "p0=[" & a & ", " & b & ", " & eoff & "]", ""))
 
         End If
@@ -1337,13 +1345,13 @@ filldata:
         '  Dim tmp = MathNet.Numerics.Fit.LinearGeneric(Of Double())(list_x.ToArray, list_y.ToArray, _
         '                                                           Function(a, b, c, d, x) a * b * x + c * d * x)
         'ffff
-        button11_click(sender, Nothing)
-        pythonIt( _
-            "def func(x, a, c, d) :" & vbNewLine & _
-            Space(5) & "return a*np.sin(" & textbox23.text & "*x+c)+d", _
-            False, _
-            "p0=[" & textbox25.text & ", " & textbox24.text & ", " & textbox22.text & "]")
-       
+        Button11_Click(sender, Nothing)
+        pythonIt(
+            "def func(x, a, c, d) :" & vbNewLine &
+            Space(5) & "return a*np.sin(" & TextBox23.Text & "*x+c)+d",
+            False,
+            "p0=[" & TextBox25.Text & ", " & TextBox24.Text & ", " & TextBox22.Text & "]")
+
 
     End Sub
 
@@ -1426,14 +1434,14 @@ filldata:
         End If
         Dim lma As New LMDotNet.LMSolver
 
-        Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Sin(p(1) * x + p(2)) + p(3), _
-                        New Double() {TextBox25.Text, TextBox23.Text, TextBox24.Text, TextBox22.Text}, _
-                       list_x.ToArray, _
+        Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Sin(p(1) * x + p(2)) + p(3),
+                        New Double() {TextBox25.Text, TextBox23.Text, TextBox24.Text, TextBox22.Text},
+                       list_x.ToArray,
                        list_y.ToArray)
         If ko.Iterations = 600 Then
-            ko = lma.FitCurve(Function(x, p) p(0) * Math.Sin(p(1) * x + p(2)) + p(3), _
-                 ko.OptimizedParameters, _
-                     list_x.ToArray, _
+            ko = lma.FitCurve(Function(x, p) p(0) * Math.Sin(p(1) * x + p(2)) + p(3),
+                 ko.OptimizedParameters,
+                     list_x.ToArray,
                      list_y.ToArray)
         End If
         TextBox25.Text = ko.OptimizedParameters(0)
@@ -1457,10 +1465,11 @@ filldata:
 
         If allkeys Is Nothing OrElse allkeys.Count = 0 Then Exit Sub
 
-        ViewVars.DataGridView1.ColumnCount = allkeys.Count
+        ViewVars.DataGridView1.ColumnCount = allkeys.Count + 1
         For j = 0 To allkeys.Count - 1
             ViewVars.DataGridView1.Columns(j).Name = allkeys(j)
         Next
+        ViewVars.DataGridView1.Columns(allkeys.Count).Name = ComboBox2.Text & "_hat"
 
         For k = 0 To M.RowCount - 1
             Dim AllRowCount$() = M.Row(k).ToArray().ToList().ConvertAll(Function(dbl) CStr(dbl)).ToArray
@@ -1468,6 +1477,18 @@ filldata:
                 AllRowCount(l) = wordIt(AllRowCount(l))
             Next
             ViewVars.DataGridView1.Rows.Add(AllRowCount$)
+        Next
+        refreshUpdatedValsInParamWindows()
+
+
+    End Sub
+
+    Sub refreshUpdatedValsInParamWindows()
+        If ViewVars.DataGridView1 Is Nothing Then Exit Sub
+        If ViewVars.DataGridView1.Rows Is Nothing Then Exit Sub
+        If list_pred_pts Is Nothing OrElse list_pred_pts.Count = 0 Then Exit Sub
+        For k = 0 To M.RowCount - 1
+            ViewVars.DataGridView1.Rows(k).Cells(allkeys.Count).Value = wordIt(list_pred_pts(k).Y)
         Next
     End Sub
     Private Sub Button20_Click(sender As Object, e As EventArgs) Handles Button20.Click
@@ -1482,6 +1503,42 @@ filldata:
         Options.Show()
     End Sub
 
+    Private Sub Button21_Click(sender As Object, e As EventArgs) Handles Button21.Click
+        Dim headCode$ = "["
+        'Dim SpiceCode$ = ""
+        For r = DataGridView2.Rows.Count - 1 To 0 Step -1
+            headCode &= DataGridView2.Rows(r).Cells(0).Value & ", "
+        Next
+
+        headCode &= "]" ' DataGridView2.Rows(DataGridView2.Rows.Count-1).Cells(0).Value & "]"
+        While headCode.IndexOf(", ]") <> -1 : headCode = Replace(headCode, ", ]", "]",,, CompareMethod.Text) : End While
+        While headCode.IndexOf("[, ") <> -1 : headCode = Replace(headCode, "[, ", "[",,, CompareMethod.Text) : End While
+
+
+        Dim Fcode$ = "% " & ComboBox2.Text & "_hat = np.polyval(" & headCode & ", " & ComboBox1.Text & ")"
+        Fcode$ &= vbNewLine & "# " & ComboBox2.Text & "_hat = npolyval(" & headCode & ", " & ComboBox1.Text & ")"
+
+        Clipboard.SetText(Fcode)
+    End Sub
+
+
+    'Fetch/Hold for polynomials
+    Public HeldListOfPolys As New List(Of Double)
+    Private Sub Button23_Click(sender As Object, e As EventArgs) Handles Button23.Click
+        HeldListOfPolys.Clear()
+        For r = 0 To DataGridView2.Rows.Count - 1
+            HeldListOfPolys.Add(DataGridView2.Rows(r).Cells(0).Value)
+        Next
+
+    End Sub
+
+    Private Sub Button22_Click(sender As Object, e As EventArgs) Handles Button22.Click
+        DataGridView2.Rows.Clear()
+        For Each item In HeldListOfPolys
+            DataGridView2.Rows.Add(item)
+        Next
+    End Sub
+
     Private Sub Button13_Click(sender As Object, e As EventArgs) Handles Button13.Click
         Dim exp As New WindowsForms.PngExporter() With {.Resolution = 1200}
         Clipboard.SetImage(exp.ExportToBitmap(Plot1.Model))
@@ -1494,7 +1551,7 @@ filldata:
         XYZ_MODE = CheckBox1.Checked
 
 
-            TextBox21.Visible = XYZ_MODE
+        TextBox21.Visible = XYZ_MODE
         If XYZ_MODE Then
             Label4.Text = "ax"
             Label14.Text = "f(x)=ax.x+ay.y+b"
@@ -1511,14 +1568,14 @@ filldata:
         Dim pp! = list_y.Max - list_y.Min
 
         If NumericUpDown1.Value = 2 Then
-            Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Exp(p(1) * x) + p(2) * Math.Exp(p(3) * x) + p(4), _
-                          New Double() {pp, 1, pp, 1, 0}, _
-                         list_x.ToArray, _
+            Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Exp(p(1) * x) + p(2) * Math.Exp(p(3) * x) + p(4),
+                          New Double() {pp, 1, pp, 1, 0},
+                         list_x.ToArray,
                          list_y.ToArray)
             If ko.Iterations = 600 Then
-                ko = lma.FitCurve(Function(x, p) p(0) * Math.Exp(p(1) * x) + p(2) * Math.Exp(p(3) * x) + p(4), _
-                     ko.OptimizedParameters, _
-                         list_x.ToArray, _
+                ko = lma.FitCurve(Function(x, p) p(0) * Math.Exp(p(1) * x) + p(2) * Math.Exp(p(3) * x) + p(4),
+                     ko.OptimizedParameters,
+                         list_x.ToArray,
                          list_y.ToArray)
             End If
             TextBox6.Text = ko.OptimizedParameters(0)
@@ -1527,14 +1584,14 @@ filldata:
             TextBox8.Text = ko.OptimizedParameters(3)
             TextBox13.Text = ko.OptimizedParameters(4)
         Else
-            Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Exp(p(1) * x) + p(2), _
-                   New Double() {pp, 1, 0}, _
-                   list_x.ToArray, _
+            Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Exp(p(1) * x) + p(2),
+                   New Double() {pp, 1, 0},
+                   list_x.ToArray,
                    list_y.ToArray)
             If ko.Iterations = 600 Then
-                ko = lma.FitCurve(Function(x, p) p(0) * Math.Exp(p(1) * x) + p(2), _
-                     ko.OptimizedParameters, _
-                         list_x.ToArray, _
+                ko = lma.FitCurve(Function(x, p) p(0) * Math.Exp(p(1) * x) + p(2),
+                     ko.OptimizedParameters,
+                         list_x.ToArray,
                          list_y.ToArray)
             End If
             TextBox6.Text = ko.OptimizedParameters(0)
@@ -1552,20 +1609,20 @@ filldata:
         Dim pp! = list_y.Max - list_y.Min
 
         If NumericUpDown2.Value = 2 Then
-            Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2) * Math.Log(p(3) * x) + p(4), _
-                         New Double() {pp, 1, pp, 1, 0}, _
-                         list_x.ToArray, _
+            Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2) * Math.Log(p(3) * x) + p(4),
+                         New Double() {pp, 1, pp, 1, 0},
+                         list_x.ToArray,
                          list_y.ToArray)
             If ko.Iterations = 600 Then
-                ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2) * Math.Log(p(3) * x) + p(4), _
-                     ko.OptimizedParameters, _
-                         list_x.ToArray, _
+                ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2) * Math.Log(p(3) * x) + p(4),
+                     ko.OptimizedParameters,
+                         list_x.ToArray,
                          list_y.ToArray)
             End If
             If ko.Iterations = 600 Then
-                ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2) * Math.Log(p(3) * x) + p(4), _
-                     ko.OptimizedParameters, _
-                         list_x.ToArray, _
+                ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2) * Math.Log(p(3) * x) + p(4),
+                     ko.OptimizedParameters,
+                         list_x.ToArray,
                          list_y.ToArray)
             End If
             TextBox12.Text = ko.OptimizedParameters(0)
@@ -1574,20 +1631,20 @@ filldata:
             TextBox9.Text = ko.OptimizedParameters(3)
             TextBox14.Text = ko.OptimizedParameters(4)
         Else
-            Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2), _
-                   New Double() {pp, 1, 0}, _
-                   list_x.ToArray, _
+            Dim ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2),
+                   New Double() {pp, 1, 0},
+                   list_x.ToArray,
                    list_y.ToArray)
             If ko.Iterations = 600 Then
-                ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2), _
-                     ko.OptimizedParameters, _
-                         list_x.ToArray, _
+                ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2),
+                     ko.OptimizedParameters,
+                         list_x.ToArray,
                          list_y.ToArray)
             End If
             If ko.Iterations = 600 Then
-                ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2), _
-                     ko.OptimizedParameters, _
-                         list_x.ToArray, _
+                ko = lma.FitCurve(Function(x, p) p(0) * Math.Log(p(1) * x) + p(2),
+                     ko.OptimizedParameters,
+                         list_x.ToArray,
                          list_y.ToArray)
             End If
             TextBox12.Text = ko.OptimizedParameters(0)
@@ -1663,7 +1720,7 @@ filldata:
         fw.Close()
 
         'Python
-        IO.File.Copy(newmatlabfilename, adjustedName & "_selected.py")
+        IO.File.Copy(newmatlabfilename, adjustedName & "_selected.py", True)
 
 
 
@@ -1682,5 +1739,9 @@ filldata:
         vircons.Visible = True
 
 
+    End Sub
+
+    Private Sub BackgroundWorker2_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker2.RunWorkerCompleted
+        refreshUpdatedValsInParamWindows()
     End Sub
 End Class
