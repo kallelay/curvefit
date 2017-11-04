@@ -149,7 +149,7 @@ Partial Class Options
         Me.CheckBox3.AutoSize = True
         Me.CheckBox3.Checked = True
         Me.CheckBox3.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.CheckBox3.Location = New System.Drawing.Point(19, 65)
+        Me.CheckBox3.Location = New System.Drawing.Point(19, 93)
         Me.CheckBox3.Name = "CheckBox3"
         Me.CheckBox3.Size = New System.Drawing.Size(79, 17)
         Me.CheckBox3.TabIndex = 10
@@ -161,7 +161,7 @@ Partial Class Options
         Me.CheckBox4.AutoSize = True
         Me.CheckBox4.Checked = True
         Me.CheckBox4.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.CheckBox4.Location = New System.Drawing.Point(19, 88)
+        Me.CheckBox4.Location = New System.Drawing.Point(19, 116)
         Me.CheckBox4.Name = "CheckBox4"
         Me.CheckBox4.Size = New System.Drawing.Size(88, 17)
         Me.CheckBox4.TabIndex = 11
@@ -176,7 +176,7 @@ Partial Class Options
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(12, 212)
+        Me.Button1.Location = New System.Drawing.Point(12, 158)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(227, 46)
         Me.Button1.TabIndex = 12

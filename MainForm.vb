@@ -1649,9 +1649,9 @@ filldata:
 
         adjustedName = Strings.Join(TextBox1.Text.Split("\").Take(TextBox1.Text.Split("\").Count - 1).ToArray(), "\") & "\" & adjustedName
         DelimitedWriter.Write(adjustedName$ & "_selected.csv", M, ";", allkeys.ToArray())
+
+        'Matlab
         Dim newmatlabfilename$ = adjustedName & "_selected.m" 'Strings.Join(adjustedName$.Split("\").Take(adjustedName$.Split("\").Count - 1).ToArray(), "\") & "\" & Split(adjustedName$, "\").Last & "_selected.m"
-
-
         Dim kline = 0
         Dim fw As New IO.StreamWriter(New IO.FileStream(newmatlabfilename$, IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.ReadWrite))
         For Each key In allkeys
@@ -1661,6 +1661,9 @@ filldata:
             kline += 1
         Next
         fw.Close()
+
+        'Python
+        IO.File.Copy(newmatlabfilename, adjustedName & "_selected.py")
 
 
 
