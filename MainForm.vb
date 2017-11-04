@@ -69,7 +69,7 @@ Public Class MainForm
             End If
 
         Catch ex As Exception
-            MsgBox(ex.StackTrace)
+            MsgBox(ex.Message & vbNewLine & ex.StackTrace)
         End Try
     End Sub
 
@@ -322,8 +322,27 @@ last:
 
 
 read_mat:  'in case it's a mat
-        Dim dict As Dictionary(Of String, Matrix(Of Double)) =
-               MathNet.Numerics.Data.Matlab.MatlabReader.ReadAll(Of Double)(str)
+
+        Dim fstrMat As New IO.FileStream(str, IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.ReadWrite)
+        Dim aa =
+            MathNet.Numerics.Data.Matlab.MatlabReader.List(fstrMat)
+
+
+
+
+        Dim dict As New Dictionary(Of String, Matrix(Of Double))
+        For Each item In aa
+            Try
+                dict.Add(item.Name, MathNet.Numerics.Data.Matlab.MatlabReader.Read(Of Double)(str, item.Name))
+
+            Catch ex As Exception
+
+            End Try
+
+        Next
+        '     Dim dict As Dictionary(Of String, Matrix(Of Double)) =
+        '     MathNet.Numerics.Data.Matlab.MatlabReader.ReadAll(Of Double)(str)
+
 
         allkeys = Nothing
         ReDim allkeys(dict.Count - 1)
@@ -331,23 +350,42 @@ read_mat:  'in case it's a mat
         ReDim v_mins(dict.Count - 1)
         ReDim v_excludes(dict.Count - 1)
         Dim curIt = 0
+
+        Dim curMaxIdx = 0
         For Each kv In dict
             allkeys(curIt) = kv.Key
 
             If kv.Value.ColumnCount > kv.Value.RowCount Then
-                For col = 0 To M.ColumnCount - 1
-                    v_maxs(curIt) = M.Column(col).Maximum
-                    v_mins(curIt) = M.Column(col).Minimum
+                For col = 0 To kv.Value.ColumnCount - 1
+                    v_maxs(curIt) = kv.Value.Column(col).Maximum
+                    v_mins(curIt) = kv.Value.Column(col).Minimum
                 Next
+                If curMaxIdx < kv.Value.ColumnCount Then curMaxIdx = kv.Value.ColumnCount
             Else
-                For col = 0 To M.RowCount - 1
-                    v_maxs(curIt) = M.Row(col).Maximum
-                    v_mins(curIt) = M.Row(col).Minimum
+                For col = 0 To kv.Value.RowCount - 1
+                    v_maxs(curIt) = kv.Value.Row(col).Maximum
+                    v_mins(curIt) = kv.Value.Row(col).Minimum
                 Next
+                If curMaxIdx < kv.Value.RowCount Then curMaxIdx = kv.Value.RowCount
+            End If
+            curIt += 1
+        Next
+        M = Matrix(Of Double).Build.Dense(allkeys.Count, curMaxIdx)
+
+        curIt = 0
+        For Each kv In dict
+            If kv.Value.ColumnCount > kv.Value.RowCount Then
+
+                M.SetRow(curIt, kv.Value.Row(0).ToArray)
+            Else
+                M.SetRow(curIt, kv.Value.Column(0).ToArray)
+
             End If
 
             curIt += 1
         Next
+        M = M.Transpose
+
 
 
 filldata:
@@ -1488,7 +1526,12 @@ filldata:
         If ViewVars.DataGridView1.Rows Is Nothing Then Exit Sub
         If list_pred_pts Is Nothing OrElse list_pred_pts.Count = 0 Then Exit Sub
         For k = 0 To M.RowCount - 1
-            ViewVars.DataGridView1.Rows(k).Cells(allkeys.Count).Value = wordIt(list_pred_pts(k).Y)
+            Try
+     ViewVars.DataGridView1.Rows(k).Cells(allkeys.Count).Value = wordIt(list_pred_pts(k).Y)
+      
+            Catch ex As Exception
+
+            End Try
         Next
     End Sub
     Private Sub Button20_Click(sender As Object, e As EventArgs) Handles Button20.Click

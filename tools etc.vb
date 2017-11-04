@@ -57,6 +57,7 @@ Module tools_etc
 
         End If
         Return str
+
     End Function
 
     'Convert units to number (TODO: cleanup, check last thing, not replace!)
