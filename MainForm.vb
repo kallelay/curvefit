@@ -333,7 +333,13 @@ read_mat:  'in case it's a mat
         Dim dict As New Dictionary(Of String, Matrix(Of Double))
         For Each item In aa
             Try
-                dict.Add(item.Name, MathNet.Numerics.Data.Matlab.MatlabReader.Read(Of Double)(str, item.Name))
+                If Trim(item.Name) = "" Then
+                    dict.Add("Ans", MathNet.Numerics.Data.Matlab.MatlabReader.Read(Of Double)(str, item.Name))
+
+                Else
+                    dict.Add(item.Name, MathNet.Numerics.Data.Matlab.MatlabReader.Read(Of Double)(str, item.Name))
+
+                End If
 
             Catch ex As Exception
 
@@ -356,16 +362,17 @@ read_mat:  'in case it's a mat
             allkeys(curIt) = kv.Key
 
             If kv.Value.ColumnCount > kv.Value.RowCount Then
-                For col = 0 To kv.Value.ColumnCount - 1
-                    v_maxs(curIt) = kv.Value.Column(col).Maximum
-                    v_mins(curIt) = kv.Value.Column(col).Minimum
-                Next
+                v_maxs(curIt) = kv.Value.Row(0).Maximum
+                v_mins(curIt) = kv.Value.Row(0).Minimum
+                ' For col = 0 To kv.Value.ColumnCount - 1
+                ' v_maxs(curIt) = kv.Value.Column(col).Maximum
+                ' v_mins(curIt) = kv.Value.Column(col).Minimum
+                'Next
                 If curMaxIdx < kv.Value.ColumnCount Then curMaxIdx = kv.Value.ColumnCount
             Else
-                For col = 0 To kv.Value.RowCount - 1
-                    v_maxs(curIt) = kv.Value.Row(col).Maximum
-                    v_mins(curIt) = kv.Value.Row(col).Minimum
-                Next
+                v_maxs(curIt) = kv.Value.Column(0).Maximum
+                v_mins(curIt) = kv.Value.Column(0).Minimum
+
                 If curMaxIdx < kv.Value.RowCount Then curMaxIdx = kv.Value.RowCount
             End If
             curIt += 1
@@ -385,7 +392,7 @@ read_mat:  'in case it's a mat
             curIt += 1
         Next
         M = M.Transpose
-
+        initM = M.Clone()
 
 
 filldata:
@@ -557,7 +564,9 @@ filldata:
 
 
         Try
-            NumericUpDown3.Maximum = M.Column(selected_idx_x).Count
+            'polynoms
+            If NumericUpDown3.Value > M.Column(selected_idx_y).Count - 1 Then NumericUpDown3.Value = M.Column(selected_idx_y).Count - 1
+            NumericUpDown3.Maximum = M.Column(selected_idx_y).Count - 1
 
 
         Catch ex As Exception
@@ -642,6 +651,11 @@ filldata:
             Next
 
         Next
+
+
+        'Update Max polys
+        If NumericUpDown3.Value > M.Column(selected_idx_y).Count - 1 Then NumericUpDown3.Value = M.Column(selected_idx_y).Count - 1
+        NumericUpDown3.Maximum = M.Column(selected_idx_y).Count - 1
 
 
         If BackgroundWorker2.IsBusy Then BackgroundWorker2.CancelAsync()
@@ -1559,7 +1573,7 @@ filldata:
 
 
         Dim Fcode$ = "% " & ComboBox2.Text & "_hat = np.polyval(" & headCode & ", " & ComboBox1.Text & ")"
-        Fcode$ &= vbNewLine & "# " & ComboBox2.Text & "_hat = npolyval(" & headCode & ", " & ComboBox1.Text & ")"
+        Fcode$ &= vbNewLine & "# " & ComboBox2.Text & "_hat = polyval(" & headCode & ", " & ComboBox1.Text & ")"
 
         Clipboard.SetText(Fcode)
     End Sub
@@ -1586,6 +1600,11 @@ filldata:
         Dim exp As New WindowsForms.PngExporter() With {.Resolution = 1200}
         Clipboard.SetImage(exp.ExportToBitmap(Plot1.Model))
 
+    End Sub
+
+    Private Sub ToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem1.Click
+        If allkeys Is Nothing OrElse allkeys.Count = 0 Then Exit Sub
+        Clipboard.SetText(Strings.Join(allkeys, ", "))
     End Sub
 
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
