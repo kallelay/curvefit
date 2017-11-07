@@ -72,4 +72,8 @@
         Button1.Text = "legend font" & vbNewLine & PLOT_FONT.ToString
         Try : MainForm.BackgroundWorker1.RunWorkerAsync() : Catch ex As Exception : End Try
     End Sub
+
+    Private Sub Button24_Click(sender As Object, e As EventArgs) Handles Button24.Click
+        MainForm.CheckBox1.Visible = True
+    End Sub
 End Class

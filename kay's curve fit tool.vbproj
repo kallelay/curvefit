@@ -115,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ScriptingModule.vb" />
+    <Compile Include="ThatThing.vb" />
     <Compile Include="ViewVars.Designer.vb">
       <DependentUpon>ViewVars.vb</DependentUpon>
     </Compile>

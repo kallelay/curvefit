@@ -38,6 +38,8 @@ Partial Class Options
         Me.CheckBox4 = New System.Windows.Forms.CheckBox()
         Me.FontDialog1 = New System.Windows.Forms.FontDialog()
         Me.Button1 = New System.Windows.Forms.Button()
+        Me.Button24 = New System.Windows.Forms.Button()
+        Me.Label6 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'CheckBox1
@@ -183,11 +185,30 @@ Partial Class Options
         Me.Button1.Text = "legend font"
         Me.Button1.UseVisualStyleBackColor = True
         '
+        'Button24
+        '
+        Me.Button24.Location = New System.Drawing.Point(413, 248)
+        Me.Button24.Name = "Button24"
+        Me.Button24.Size = New System.Drawing.Size(42, 22)
+        Me.Button24.TabIndex = 13
+        Me.Button24.Text = "3D"
+        Me.Button24.UseVisualStyleBackColor = True
+        '
+        'Label6
+        '
+        Me.Label6.AutoSize = True
+        Me.Label6.Location = New System.Drawing.Point(337, 253)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(70, 13)
+        Me.Label6.TabIndex = 5
+        Me.Label6.Text = "Experimental:"
+        '
         'Options
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(597, 293)
+        Me.Controls.Add(Me.Button24)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.CheckBox4)
         Me.Controls.Add(Me.CheckBox3)
@@ -195,6 +216,7 @@ Partial Class Options
         Me.Controls.Add(Me.TextBox5)
         Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.TextBox4)
+        Me.Controls.Add(Me.Label6)
         Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.TextBox3)
         Me.Controls.Add(Me.Label2)
@@ -225,4 +247,6 @@ Partial Class Options
     Friend WithEvents CheckBox4 As System.Windows.Forms.CheckBox
     Friend WithEvents FontDialog1 As System.Windows.Forms.FontDialog
     Friend WithEvents Button1 As System.Windows.Forms.Button
+    Friend WithEvents Button24 As Button
+    Friend WithEvents Label6 As Label
 End Class

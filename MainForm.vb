@@ -425,6 +425,7 @@ filldata:
 
         list_x = New List(Of Double)
         list_y = New List(Of Double)
+        If (XYZ_MODE) Then list_z = New List(Of Double)
         list_pts = New List(Of DataPoint)
         list_pred_pts = New List(Of DataPoint)
         avg_x = 0
@@ -444,6 +445,8 @@ filldata:
         ' For row = 0 To M.RowCount - 1
         list_x.AddRange(M.Column(selected_idx_x))
         list_y.AddRange(M.Column(selected_idx_y))
+
+        If (XYZ_MODE) Then list_z.AddRange(M.Column(selected_idx_y))
 
         ' Next
 
@@ -472,7 +475,12 @@ filldata:
                     chosenFunctionStr = "a.log(bx) + c.log(dx) + e"
 
                 Case 3 'poly
-                    chosenFunction = Function(i) MathNet.Numerics.Evaluate.Polynomial(list_x(i), polyCoef)
+                    If Not XYZ_MODE Then
+                        chosenFunction = Function(i) MathNet.Numerics.Evaluate.Polynomial(list_x(i), polyCoef)
+                    Else
+                        'TODO: this
+                        chosenFunction = Function(i) MathNet.Numerics.Evaluate.Polynomial(list_x(i), polyCoef)
+                    End If
                     chosenFunctionStr = "polynomial"
                 Case 4 ' pwr
                     If chosenIndex = 2 Then _
@@ -560,7 +568,7 @@ filldata:
 
         selected_idx_x = ComboBox1.SelectedIndex
         selected_idx_y = ComboBox2.SelectedIndex
-        selected_idx_z = ComboBox2.SelectedIndex
+        If (XYZ_MODE) Then selected_idx_z = ComboBox3.SelectedIndex
 
 
         Try
@@ -1189,13 +1197,17 @@ filldata:
     End Sub
 
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
+
+        If XYZ_MODE Then GoTo _3dmode : 
         If list_x Is Nothing Or list_y Is Nothing Then Exit Sub
         Dim tmp = MathNet.Numerics.Fit.Polynomial(list_x.ToArray, list_y.ToArray, NumericUpDown3.Value)
 
         DataGridView2.Rows.Clear()
-
+        Dim l = 0
         For Each item In tmp
-            DataGridView2.Rows.Add(item)
+
+            DataGridView2.Rows.Add({l, item})
+            l += 1
         Next
 
         'TextBox3.Text = tmp(0)
@@ -1206,7 +1218,36 @@ filldata:
         Catch ex As Exception
 
         End Try
+        Exit Sub
+
+_3dmode:
+        If list_x Is Nothing Or list_y Is Nothing Or list_z Is Nothing Then Exit Sub
+
+        Dim listXBig As Double()()
+        ReDim listXBig(list_x.Count - 1)
+        DataGridView2.Rows.Clear()
+
+        Dim MatXBig As Matrix(Of Double) = Matrix(Of Double).Build.Dense(list_x.Count - 1, 2)
+        'listXBig = New Double(list_x.Count - 1, 2) {{list_x.ToArray}, {list_y.ToArray}}
+        For i = 0 To list_x.Count - 1
+            listXBig(i) = New Double() {list_x(i), list_y(i)}
+            ' listXBig(i)(1) = list_y(i)
+            'MatXBig(i, 0) = list_x(i)
+            'MatXBig(i, 1) = list_y(i)
+        Next
+
+        '{list_x, list_y}
+        ' tmp = MathNet.Numerics.Fit.LinearMultiDim(listXBig, list_y.ToArray,
+        tmp = thatThing.TheThing(listXBig, list_z) ' MathNet.Numerics.Fit.LinearMultiDim(listXBig, list_z.ToArray, )
+        l = 0
+        For Each item In tmp
+            DataGridView2.Rows.Add({Int(l / (NumericUpDown3.Value + 1)) & "x" & l Mod (NumericUpDown3.Value + 1), item}) ', tmp(1)})
+            l += 1
+        Next
+
+
     End Sub
+
 
     Private Sub DataGridView2_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles DataGridView2.CellContentClick
         'TODO: this
@@ -1216,7 +1257,7 @@ filldata:
         polyCoef = Nothing
         ReDim polyCoef(DataGridView2.RowCount - 1)
         For row = 0 To DataGridView2.RowCount - 1
-            polyCoef(row) = DataGridView2.Rows(row).Cells(0).Value
+            polyCoef(row) = DataGridView2.Rows(row).Cells(1).Value
         Next
     End Sub
 
@@ -1224,7 +1265,13 @@ filldata:
         polyCoef = Nothing
         ReDim polyCoef(DataGridView2.RowCount - 1)
         For row = 0 To DataGridView2.RowCount - 1
-            polyCoef(row) = DataGridView2.Rows(row).Cells(0).Value
+            Try
+
+                polyCoef(row) = DataGridView2.Rows(row).Cells(1).Value
+
+            Catch ex As Exception
+
+            End Try
         Next
     End Sub
 
@@ -1561,10 +1608,12 @@ filldata:
     End Sub
 
     Private Sub Button21_Click(sender As Object, e As EventArgs) Handles Button21.Click
+
+        If XYZ_MODE Then GoTo _3dmode
         Dim headCode$ = "["
         'Dim SpiceCode$ = ""
         For r = DataGridView2.Rows.Count - 1 To 0 Step -1
-            headCode &= DataGridView2.Rows(r).Cells(0).Value & ", "
+            headCode &= DataGridView2.Rows(r).Cells(1).Value & ", "
         Next
 
         headCode &= "]" ' DataGridView2.Rows(DataGridView2.Rows.Count-1).Cells(0).Value & "]"
@@ -1576,7 +1625,60 @@ filldata:
         Fcode$ &= vbNewLine & "# " & ComboBox2.Text & "_hat = polyval(" & headCode & ", " & ComboBox1.Text & ")"
 
         Clipboard.SetText(Fcode)
+        Exit Sub
+_3dmode:
+        headCode$ = "x=" & ComboBox1.Text & vbNewLine & "y=" & ComboBox2.Text & vbNewLine
+        Dim pHeadCode$ = ""
+        'Dim SpiceCode$ = ""
+        For r = DataGridView2.Rows.Count - 1 To 0 Step -1
+            If DataGridView2.Rows(r).Cells(0).Value Is Nothing Then Continue For
+            'headCode &= DataGridView2.Rows(r).Cells(1).Value & ", "
+            headCode &= "p" & DataGridView2.Rows(r).Cells(0).Value.replace("x", "") & "=" & _
+    DataGridView2.Rows(r).Cells(1).Value & vbNewLine
+
+        Next
+        headCode &= ComboBox3.Text & "_hat = "
+        pHeadCode = headCode & ""
+
+        '   headCode &= "]" ' DataGridView2.Rows(DataGridView2.Rows.Count-1).Cells(0).Value & "]"
+        ' While headCode.IndexOf(", ]") <> -1 : headCode = Replace(headCode, ", ]", "]", , , CompareMethod.Text) : End While
+        '  While headCode.IndexOf("[, ") <> -1 : headCode = Replace(headCode, "[, ", "[", , , CompareMethod.Text) : End While
+
+        initMaxX = NumericUpDown3.Value
+        pHeadCode &= generatePolyCoeff(NumericUpDown3.Value, NumericUpDown5.Value)
+        headCode &= generatePolyCoeff(NumericUpDown3.Value, NumericUpDown5.Value, ".^")
+
+        headCode = Replace(headCode, "*", ".*")
+        headCode = Replace(headCode, "+ " & vbNewLine, vbNewLine)
+        headCode = Replace(headCode, ".* x.^0 ", "")
+        headCode = Replace(headCode, ".* y.^0 ", "")
+        headCode = Replace(headCode, ".^0 ", "")
+
+        pHeadCode = Replace(pHeadCode, "+ " & vbNewLine, vbNewLine)
+        pHeadCode = Replace(pHeadCode, "* x**0 ", "")
+        pHeadCode = Replace(pHeadCode, "* y**0 ", "")
+        headCode = Replace(headCode, "**0 ", "")
+
+
+
+
+        Fcode = "%Matlab:" & vbNewLine & pHeadCode & vbNewLine & vbNewLine & "#Python:" & vbNewLine & headCode
+        Clipboard.SetText(Fcode)
+        Exit Sub
     End Sub
+
+    Dim initMaxX = 0
+    Function generatePolyCoeff(maxX%, maxY%, Optional symb$ = "**", Optional prevStr$ = "") As String
+        '  If prevStr = "" Then initMaxX = maxX
+        If maxX = 0 And maxY = 0 Then Return prevStr & " p00"
+        If maxX = 0 Then Return forPoly(maxX, maxY, symb) & " + " & generatePolyCoeff(initMaxX, maxY% - 1, symb, prevStr)
+        Return forPoly(maxX, maxY, symb) & " + " & generatePolyCoeff(maxX% - 1, maxY%, symb, prevStr)
+
+    End Function
+
+    Function forPoly(x%, y%, Optional symb$ = "**") As String
+        Return "p" & x & y & " * x" & symb & x & " * y" & symb & y
+    End Function
 
 
     'Fetch/Hold for polynomials
@@ -1584,7 +1686,7 @@ filldata:
     Private Sub Button23_Click(sender As Object, e As EventArgs) Handles Button23.Click
         HeldListOfPolys.Clear()
         For r = 0 To DataGridView2.Rows.Count - 1
-            HeldListOfPolys.Add(DataGridView2.Rows(r).Cells(0).Value)
+            HeldListOfPolys.Add(DataGridView2.Rows(r).Cells(1).Value)
         Next
 
     End Sub
@@ -1613,14 +1715,44 @@ filldata:
         XYZ_MODE = CheckBox1.Checked
 
 
+        Label39.Visible = XYZ_MODE
+        NumericUpDown5.Visible = XYZ_MODE
+
+
         TextBox21.Visible = XYZ_MODE
         If XYZ_MODE Then
+
+            'Linear:
             Label4.Text = "ax"
             Label14.Text = "f(x)=ax.x+ay.y+b"
+
+            'Polynomials
+            DataGridView2.Rows.Clear()
+            DataGridView2.Columns.Clear()
+            DataGridView2.ColumnCount = 2
+            DataGridView2.Columns(0).Name = "Order"
+            DataGridView2.Columns(0).ReadOnly = True
+            DataGridView2.Columns(1).Name = "Val xy"
+            'DataGridView2.Columns(2).Name = "Val y"
+
         Else
+            'Linear:
             Label4.Text = "a"
             Label14.Text = "f(x)=a.x+b"
+
+
+
+            'Polynomials
+            DataGridView2.Rows.Clear()
+            DataGridView2.Columns.Clear()
+            DataGridView2.ColumnCount = 2
+            DataGridView2.Columns(0).Name = "Order"
+            DataGridView2.Columns(0).ReadOnly = True
+            DataGridView2.Columns(1).Name = "Val x"
         End If
+
+
+
 
     End Sub
 

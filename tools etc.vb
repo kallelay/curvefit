@@ -13,6 +13,8 @@ Module tools_etc
 
 
     Public list_x As List(Of Double), list_y As List(Of Double)
+    Public list_z As List(Of Double)
+
     Public list_pts As List(Of DataPoint)
     Public list_pred_pts As List(Of DataPoint)
     'public list_z s list(of double)
